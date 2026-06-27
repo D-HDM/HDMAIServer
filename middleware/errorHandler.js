@@ -1,6 +1,8 @@
 const config = require('../config');
 
 const errorHandler = (err, req, res, _next) => {
+  const statusCode = err.statusCode || 500;
+
   if (statusCode >= 500) {
     console.error(`[ERROR] ${err.message}`, config.isDev ? err.stack : '');
   }
@@ -27,7 +29,6 @@ const errorHandler = (err, req, res, _next) => {
     return res.status(401).json({ success: false, error: 'Token expired.' });
   }
 
-  const statusCode = err.statusCode || 500;
   const message = config.isDev ? err.message : 'Internal server error.';
   res.status(statusCode).json({ success: false, error: message });
 };

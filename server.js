@@ -77,6 +77,7 @@ app.get('/health', async (req, res) => {
 });
 
 app.use('/api/v1/internal', require('./routes/internal/keys'));
+app.use('/api/v1/projects', require('./routes/projects'));
 app.use('/api/v1', require('./routes'));
 
 app.use(errorHandler);
