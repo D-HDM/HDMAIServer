@@ -12,7 +12,15 @@ const keyResolver = require('./services/keyResolver');
 
 const app = express();
 
-app.use(cors({ origin: config.corsOrigins, credentials: true }));
+app.use(cors({
+  origin: config.corsOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+app.options('*', (req, res) => res.sendStatus(200));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(logger);
