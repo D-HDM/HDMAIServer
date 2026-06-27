@@ -54,6 +54,7 @@ router.get('/', adminAuth, async (req, res) => {
       gemini_api: 'connected',
       code_execution: 'local',
       python: {
+        url: config.pythonAiUrl,
         status: pythonStatus,
         version: pythonVersion,
         uptime: pythonUptime,
