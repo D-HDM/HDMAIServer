@@ -1,7 +1,3 @@
-// ====================================================================================================
-// HDM AI Server — Usage Log Model
-// ====================================================================================================
-
 const mongoose = require('mongoose');
 
 const usageLogSchema = new mongoose.Schema(
@@ -19,7 +15,6 @@ const usageLogSchema = new mongoose.Schema(
     },
     provider: {
       type: String,
-      enum: ['groq', 'gemini'],
       default: 'groq',
     },
     endpoint: {
