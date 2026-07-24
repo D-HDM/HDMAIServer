@@ -19,6 +19,7 @@ const SEED_KEYS = [
   { module: 'vibe', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'llama-3.3-70b-versatile' },
   { module: 'vault', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'llama-3.3-70b-versatile' },
   { module: 'widget', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'llama-3.3-70b-versatile' },
+  { module: 'rvnp', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'llama-3.3-70b-versatile' },
   { module: 'general', provider: 'gemini', apiKey: process.env.DEFAULT_GEMINI_API_KEY, model: 'gemini-2.5-flash' },
 ];
 
@@ -30,6 +31,7 @@ const SEED_PROJECT_KEYS = [
   { project: 'vault', key: process.env.DEFAULT_HDM_VAULT_KEY, name: 'Default Vault' },
   { project: 'erp', key: process.env.DEFAULT_HDM_ERP_KEY, name: 'Default ERP' },
   { project: 'widget', key: process.env.DEFAULT_HDM_WIDGET_KEY, name: 'Default Widget' },
+  { project: 'rvnp', key: process.env.DEFAULT_HDM_RVNP_KEY, name: 'Default RVNP' },
 ];
 
 const DEFAULT_SETTINGS = {

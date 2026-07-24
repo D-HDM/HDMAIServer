@@ -1,8 +1,3 @@
-// ====================================================================================================
-// HDM AI Server — AI Provider Key Model
-// Groq/Gemini keys per module (admin managed)
-// ====================================================================================================
-
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 
@@ -29,11 +24,11 @@ function decrypt(text) {
 
 const aiProviderKeySchema = new mongoose.Schema(
   {
-    module: {
-      type: String,
-      required: true,
-      enum: ['general', 'smartpos', 'spark', 'vibe', 'vault', 'erp', 'widget'],
-    },
+  module: {
+  type: String,
+  required: true,
+  enum: ['general', 'smartpos', 'spark', 'vibe', 'vault', 'erp', 'widget', 'rvnp'],
+},
     provider: {
       type: String,
       required: true,

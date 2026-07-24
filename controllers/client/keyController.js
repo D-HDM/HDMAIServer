@@ -6,7 +6,7 @@ const User = require('../../models/User');
 
 const PREFIXES = {
   general: 'hdm_gen_', smartpos: 'hdm_pos_', spark: 'hdm_spk_',
-  vibe: 'hdm_vib_', vault: 'hdm_vlt_', erp: 'hdm_erp_', widget: 'hdm_wdg_',
+  vibe: 'hdm_vib_', vault: 'hdm_vlt_', erp: 'hdm_erp_', widget: 'hdm_wdg_',rvnp: 'hdm_rvn_',
 };
 
 const createKey = async (req, res, next) => {

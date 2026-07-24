@@ -35,7 +35,7 @@ const usage = async (req, res, next) => {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    const modules = ['general', 'smartpos', 'spark', 'vibe', 'vault', 'erp', 'widget'];
+    const modules = ['general', 'smartpos', 'spark', 'vibe', 'vault', 'erp', 'widget', 'rvnp'];
     const services = {};
     const keyTotals = { key1: 0, key2: 0, key3: 0, key4: 0 };
 
@@ -79,7 +79,7 @@ const usage = async (req, res, next) => {
           key_1: { label: 'Key 1', services: 'General AI', requests_today: keyTotals.key1, limit_per_day: 1440, usage_percent: keyTotals.key1 ? Math.round((keyTotals.key1 / 1440) * 1000) / 10 : 0 },
           key_2: { label: 'Key 2', services: 'ERP', requests_today: keyTotals.key2, limit_per_day: 1440, usage_percent: keyTotals.key2 ? Math.round((keyTotals.key2 / 1440) * 1000) / 10 : 0 },
           key_3: { label: 'Key 3', services: 'SmartPOS', requests_today: keyTotals.key3, limit_per_day: 1440, usage_percent: keyTotals.key3 ? Math.round((keyTotals.key3 / 1440) * 1000) / 10 : 0 },
-          key_4: { label: 'Key 4', services: 'Spark, Vibe, Vault, Widget', requests_today: keyTotals.key4, limit_per_day: 1440, usage_percent: keyTotals.key4 ? Math.round((keyTotals.key4 / 1440) * 1000) / 10 : 0 },
+          key_4: { label: 'Key 4', services: 'Spark, Vibe, Vault, Widget, RVNP', requests_today: keyTotals.key4, limit_per_day: 1440, usage_percent: keyTotals.key4 ? Math.round((keyTotals.key4 / 1440) * 1000) / 10 : 0 },
         },
         providers: {
           groq: { name: 'Groq (Llama 3.3 70B)', requests_today: groqToday.totalRequests, requests_month: groqMonth.totalRequests, tokens_today: groqToday.totalTokens, limit_requests_per_day: 5760, usage_percent_today: groqToday.totalRequests ? Math.round((groqToday.totalRequests / 5760) * 1000) / 10 : 0, status: 'active' },
