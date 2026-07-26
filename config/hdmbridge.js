@@ -1,6 +1,3 @@
-// ====================================================================================================
-// HDM Bridge — Email API Configuration & Connection
-// ====================================================================================================
 
 const axios = require('axios');
 
@@ -10,9 +7,7 @@ const HDM_BRIDGE = {
   fromEmail: process.env.HDM_FROM_EMAIL || 'notifications@hdm.ai',
   fromName: process.env.HDM_FROM_NAME || 'HDM AI',
 
-  /**
-   * Test connection to HDM Bridge
-   */
+ 
   async testConnection() {
     try {
       const response = await axios.get(`${this.apiUrl}/health`, {
@@ -27,9 +22,7 @@ const HDM_BRIDGE = {
     }
   },
 
-  /**
-   * Send email — used by emailService
-   */
+ 
   async send({ to, subject, htmlBody, textBody }) {
     try {
       const response = await axios.post(

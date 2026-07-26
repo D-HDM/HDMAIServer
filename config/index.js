@@ -16,6 +16,7 @@ const config = {
   clientUrl: process.env.CLIENT_URL || 'http://localhost:3000',
   adminUrl: process.env.ADMIN_URL || 'http://localhost:3001',
   pythonAiUrl: process.env.PYTHON_AI_URL || 'http://localhost:5002',
+pythonAiUrlBackup: process.env.PYTHON_AI_URL_BACKUP || '',
 
   // CORS
   corsOrigins: (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:3001').split(','),

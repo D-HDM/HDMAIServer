@@ -12,14 +12,14 @@ const rl = readline.createInterface({ input: process.stdin, output: process.stdo
 const ask = (q) => new Promise(r => rl.question(q, r));
 
 const SEED_KEYS = [
-  { module: 'general', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY, model: 'llama-3.3-70b-versatile' },
-  { module: 'erp', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_ERP, model: 'llama-3.3-70b-versatile' },
-  { module: 'smartpos', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SMARTPOS, model: 'llama-3.3-70b-versatile' },
-  { module: 'spark', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'llama-3.3-70b-versatile' },
-  { module: 'vibe', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'llama-3.3-70b-versatile' },
-  { module: 'vault', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'llama-3.3-70b-versatile' },
-  { module: 'widget', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'llama-3.3-70b-versatile' },
-  { module: 'rvnp', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'llama-3.3-70b-versatile' },
+  { module: 'general', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY, model: 'qwen/qwen3.6-27b' },
+  { module: 'erp', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_ERP, model: 'qwen/qwen3.6-27b' },
+  { module: 'smartpos', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SMARTPOS, model: 'qwen/qwen3.6-27b' },
+  { module: 'spark', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'qwen/qwen3.6-27b' },
+  { module: 'vibe', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'qwen/qwen3.6-27b' },
+  { module: 'vault', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'qwen/qwen3.6-27b' },
+  { module: 'widget', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'qwen/qwen3.6-27b' },
+  { module: 'rvnp', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'qwen/qwen3.6-27b' },
   { module: 'general', provider: 'gemini', apiKey: process.env.DEFAULT_GEMINI_API_KEY, model: 'gemini-2.5-flash' },
 ];
 
@@ -36,9 +36,9 @@ const SEED_PROJECT_KEYS = [
 
 const DEFAULT_SETTINGS = {
   defaultProvider: 'groq',
-  defaultModel: 'llama-3.3-70b-versatile',
+  defaultModel: 'qwen/qwen3.6-27b',
   temperature: 0.7,
-  maxTokens: 1024,
+  maxTokens: 4096,
   maxApiKeysPerUser: 3,
 };
 
@@ -155,6 +155,7 @@ async function viewSettings() {
   console.log(`│  Model:       ${settings.defaultModel.padEnd(33)}│`);
   console.log(`│  Temperature: ${String(settings.temperature).padEnd(33)}│`);
   console.log(`│  Max Tokens:  ${String(settings.maxTokens).padEnd(33)}│`);
+  console.log(`│  Max API Keys: ${String(settings.maxApiKeysPerUser).padEnd(31)}│`);
   console.log('└──────────────────────────────────────────────┘\n');
 }
 

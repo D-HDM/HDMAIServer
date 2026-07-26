@@ -11,9 +11,9 @@ const chat = async (req, res, next) => {
 
     const settings = await mongoose.connection.db.collection('settings').findOne({ type: 'ai_config' });
     const finalProvider = body.provider || settings?.defaultProvider || 'groq';
-    const finalModel = body.model || settings?.defaultModel || 'llama-3.3-70b-versatile';
+    const finalModel = body.model || settings?.defaultModel || 'qwen/qwen3.6-27b';
     const finalTemperature = body.temperature ?? settings?.temperature ?? 0.7;
-    const finalMaxTokens = body.maxTokens || settings?.maxTokens || 1024;
+    const finalMaxTokens = body.maxTokens || settings?.maxTokens || 4096;
 
     const { endpoint, payload } = getPythonRequest(module, body, projectKey);
     payload.provider = finalProvider;

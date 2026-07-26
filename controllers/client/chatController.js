@@ -22,9 +22,9 @@ const chat = async (req, res, next) => {
 
     const settings = await mongoose.connection.db.collection('settings').findOne({ type: 'ai_config' });
     const finalProvider = provider || settings?.defaultProvider || 'groq';
-    const finalModel = model || settings?.defaultModel || 'llama-3.3-70b-versatile';
+    const finalModel = model || settings?.defaultModel || 'qwen/qwen3.6-27b';
     const finalTemperature = temperature ?? settings?.temperature ?? 0.7;
-    const finalMaxTokens = maxTokens || settings?.maxTokens || 1024;
+    const finalMaxTokens = maxTokens || settings?.maxTokens || 4096;
 
     let conversation = conversationId ? await Conversation.findOne({ _id: conversationId, userId }) : null;
     if (!conversation) {
@@ -67,12 +67,14 @@ const chat = async (req, res, next) => {
 
     messages.unshift({ role: 'system', content: systemPrompt });
 
-    const resolved = await keyResolver.resolve(module, finalProvider);
-    const result = await pythonClient.chat({
-      messages, userId, module, provider: finalProvider,
-      model: finalModel || resolved?.model,
-      temperature: finalTemperature, maxTokens: finalMaxTokens, data,
-    });
+
+
+const resolved = await keyResolver.resolve(module, finalProvider);
+const result = await pythonClient.chat({
+    messages, userId, module, provider: finalProvider,
+    model: finalModel || resolved?.model,
+    temperature: finalTemperature, maxTokens: finalMaxTokens, data,
+});
 
     const reply = result?.data?.reply || result?.reply || 'AI unavailable.';
     const tokens = result?.data?.tokensUsed || result?.tokensUsed || 0;
@@ -106,9 +108,9 @@ const streamChat = async (req, res, next) => {
 
     const settings = await mongoose.connection.db.collection('settings').findOne({ type: 'ai_config' });
     const finalProvider = provider || settings?.defaultProvider || 'groq';
-    const finalModel = model || settings?.defaultModel || 'llama-3.3-70b-versatile';
+    const finalModel = model || settings?.defaultModel || 'qwen/qwen3.6-27b';
     const finalTemperature = temperature ?? settings?.temperature ?? 0.7;
-    const finalMaxTokens = maxTokens || settings?.maxTokens || 1024;
+    const finalMaxTokens = maxTokens || settings?.maxTokens || 4096;
 
     let conversation = conversationId ? await Conversation.findOne({ _id: conversationId, userId }) : null;
     if (!conversation) {
