@@ -27,7 +27,7 @@ const aiProviderKeySchema = new mongoose.Schema(
   module: {
   type: String,
   required: true,
-  enum: ['general', 'smartpos', 'spark', 'vibe', 'vault', 'erp', 'widget', 'rvnp'],
+ enum: ['general', 'smartpos', 'spark', 'vibe', 'vault', 'erp', 'widget', 'rvnp', 'learn'],
 },
     provider: {
       type: String,

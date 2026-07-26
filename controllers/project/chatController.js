@@ -1,7 +1,6 @@
 const usageService = require('../../services/usageService');
 const mongoose = require('mongoose');
-const axios = require('axios');
-const config = require('../../config');
+const pythonClient = require('../../services/pythonClient');
 
 const chat = async (req, res, next) => {
   try {
@@ -21,13 +20,8 @@ const chat = async (req, res, next) => {
     payload.temperature = finalTemperature;
     payload.max_tokens = finalMaxTokens;
 
-    const response = await axios.post(
-      `${config.pythonAiUrl}/api/v1/${endpoint}`,
-      payload,
-      { timeout: 60000 }
-    );
-
-    const respBody = response.data?.data || response.data;
+    const response = await pythonClient.post(endpoint, payload);
+    const respBody = response?.data || response;
     const reply = respBody.reply || respBody.result?.reply || 'AI unavailable.';
     const tokens = respBody.tokens_used || respBody.tokensUsed || 0;
     const modelUsed = respBody.model || finalModel;
@@ -56,18 +50,13 @@ const publicChat = async (req, res, next) => {
     const finalProvider = provider || settings?.defaultProvider || 'groq';
 
     const messages = [];
-    if (system_prompt) {
-      messages.push({ role: 'system', content: system_prompt });
-    }
+    if (system_prompt) messages.push({ role: 'system', content: system_prompt });
     messages.push({ role: 'user', content: message });
 
-    const response = await axios.post(
-      `${config.pythonAiUrl}/api/v1/general/chat`,
-      { message: message, messages: messages, user_id: projectKey.userId?.toString() || 'public', provider: finalProvider },
-      { timeout: 60000 }
-    );
-
-    const body = response.data?.data || response.data;
+    const response = await pythonClient.post('general/chat', {
+      message, messages, user_id: projectKey.userId?.toString() || 'public', provider: finalProvider,
+    });
+    const body = response?.data || response;
     const reply = body.reply || 'AI unavailable.';
     const tokens = body.tokens_used || body.tokensUsed || 0;
 
@@ -91,45 +80,21 @@ function getPythonRequest(module, body, projectKey) {
 
   switch (module) {
     case 'general':
-      return {
-        endpoint: isPublic ? 'general/chat' : 'general/chat',
-        payload: { message: body.message, user_id: userId, data: body.data }
-      };
+      return { endpoint: 'general/chat', payload: { message: body.message, user_id: userId, data: body.data } };
     case 'erp':
-      return {
-        endpoint: isPublic ? 'erp/public/chat' : 'erp/query',
-        payload: { query: body.message, tenant_id: body.tenant_id || userId, context: body.context, data: body.data }
-      };
+      return { endpoint: isPublic ? 'erp/public/chat' : 'erp/query', payload: { query: body.message, tenant_id: body.tenant_id || userId, context: body.context, data: body.data } };
     case 'smartpos':
-      return {
-        endpoint: isPublic ? 'smartpos/public/chat' : 'smartpos/chat',
-        payload: { message: body.message, client_id: body.client_id || userId, business_id: body.business_id, feature: isPublic ? 'public' : 'chat', data: body.data }
-      };
+      return { endpoint: isPublic ? 'smartpos/public/chat' : 'smartpos/chat', payload: { message: body.message, client_id: body.client_id || userId, business_id: body.business_id, feature: isPublic ? 'public' : 'chat', data: body.data } };
     case 'spark':
-      return {
-        endpoint: isPublic ? 'spark/public/chat' : 'spark/chat/ask',
-        payload: { message: body.message, user_id: userId, language: body.language || 'en', data: body.data, feature: isPublic ? 'public' : 'private' }
-      };
+      return { endpoint: isPublic ? 'spark/public/chat' : 'spark/chat/ask', payload: { message: body.message, user_id: userId, language: body.language || 'en', data: body.data, feature: isPublic ? 'public' : 'private' } };
     case 'vibe':
-      return {
-        endpoint: isPublic ? 'vibe/public/chat' : 'vibe/chat/message',
-        payload: { message: body.message, user_id: userId, data: body.data, feature: isPublic ? 'public' : 'private' }
-      };
+      return { endpoint: isPublic ? 'vibe/public/chat' : 'vibe/chat/message', payload: { message: body.message, user_id: userId, data: body.data, feature: isPublic ? 'public' : 'private' } };
     case 'vault':
-      return {
-        endpoint: isPublic ? 'vault/public/chat' : 'vault/chat',
-        payload: { message: body.message, user_id: userId, feature: isPublic ? 'public' : 'private', data: body.data }
-      };
+      return { endpoint: isPublic ? 'vault/public/chat' : 'vault/chat', payload: { message: body.message, user_id: userId, feature: isPublic ? 'public' : 'private', data: body.data } };
     case 'widget':
-      return {
-        endpoint: 'widget/chat',
-        payload: { message: body.message, source: body.source || 'hdm_portfolio', user_id: userId, data: body.data }
-      };
+      return { endpoint: 'widget/chat', payload: { message: body.message, source: body.source || 'hdm_portfolio', user_id: userId, data: body.data } };
     default:
-      return {
-        endpoint: `${module}/chat`,
-        payload: { message: body.message, user_id: userId, data: body.data }
-      };
+      return { endpoint: `${module}/chat`, payload: { message: body.message, user_id: userId, data: body.data } };
   }
 }
 

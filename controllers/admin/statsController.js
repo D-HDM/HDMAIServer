@@ -35,7 +35,7 @@ const usage = async (req, res, next) => {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    const modules = ['general', 'smartpos', 'spark', 'vibe', 'vault', 'erp', 'widget', 'rvnp'];
+   const modules = ['general', 'smartpos', 'spark', 'vibe', 'vault', 'erp', 'widget', 'rvnp', 'learn'];
     const services = {};
     const keyTotals = { key1: 0, key2: 0, key3: 0, key4: 0 };
 

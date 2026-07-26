@@ -20,15 +20,35 @@ const pythonClient = {
     }
   },
 
-  async chat({ messages, userId, module, provider, model, temperature, maxTokens, data }) {
+  async post(endpoint, payload) {
     const url = this.getUrl();
     try {
-      const response = await axios.post(
-        `${url}/api/v1/${module}/chat`,
-        { message: messages[messages.length - 1]?.content || '', messages, user_id: userId, provider, model, temperature, max_tokens: maxTokens, data },
-        { timeout: 60000 }
-      );
-      const body = response.data?.data || response.data;
+      const response = await axios.post(`${url}/api/v1/${endpoint}`, payload, { timeout: 60000 });
+      return response.data;
+    } catch (error) {
+      console.error(`Python call failed [${endpoint}]:`, error.message);
+      if (config.pythonAiUrlBackup && !useBackup) {
+        console.log('Retrying with backup URL...');
+        this.toggleUrl();
+        return this.post(endpoint, payload);
+      }
+      throw error;
+    }
+  },
+
+  async chat({ messages, userId, module, provider, model, temperature, maxTokens, data }) {
+    try {
+      const response = await this.post(`${module}/chat`, {
+        message: messages[messages.length - 1]?.content || '',
+        messages,
+        user_id: userId,
+        provider,
+        model,
+        temperature,
+        max_tokens: maxTokens,
+        data,
+      });
+      const body = response?.data || response;
       return {
         success: true,
         reply: body.reply,
@@ -37,12 +57,6 @@ const pythonClient = {
         provider: body.provider,
       };
     } catch (error) {
-      console.error(`Python call failed [${module}]:`, error.message);
-      if (config.pythonAiUrlBackup && !useBackup) {
-        console.log('Retrying with backup URL...');
-        this.toggleUrl();
-        return this.chat({ messages, userId, module, provider, model, temperature, maxTokens, data });
-      }
       return { success: false, error: 'AI engine unavailable.' };
     }
   },
