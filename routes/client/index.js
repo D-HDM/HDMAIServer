@@ -6,5 +6,6 @@ router.use('/chat', require('./chat'));
 router.use('/conversations', require('./conversations'));
 router.use('/general', require('./general'));
 router.use('/learn', require('./learn'));
+router.use('/support', require('./support'));
 
 module.exports = router;

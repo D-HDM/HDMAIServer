@@ -12,14 +12,15 @@ const rl = readline.createInterface({ input: process.stdin, output: process.stdo
 const ask = (q) => new Promise(r => rl.question(q, r));
 
 const SEED_KEYS = [
-  { module: 'general', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY, model: 'qwen/qwen3.6-27b' },
-  { module: 'erp', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_ERP, model: 'qwen/qwen3.6-27b' },
-  { module: 'smartpos', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SMARTPOS, model: 'qwen/qwen3.6-27b' },
-  { module: 'spark', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'qwen/qwen3.6-27b' },
-  { module: 'vibe', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'qwen/qwen3.6-27b' },
-  { module: 'vault', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'qwen/qwen3.6-27b' },
-  { module: 'widget', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'qwen/qwen3.6-27b' },
-  { module: 'rvnp', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'qwen/qwen3.6-27b' },
+  { module: 'general', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY, model: 'openai/gpt-oss-20b' },
+  { module: 'erp', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_ERP, model: 'openai/gpt-oss-20b' },
+  { module: 'smartpos', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SMARTPOS, model: 'openai/gpt-oss-20b' },
+  { module: 'spark', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'openai/gpt-oss-20b' },
+  { module: 'vibe', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'openai/gpt-oss-20b' },
+  { module: 'vault', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'openai/gpt-oss-20b' },
+  { module: 'widget', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'openai/gpt-oss-20b' },
+  { module: 'rvnp', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'openai/gpt-oss-20b' },
+  { module: 'learn', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'openai/gpt-oss-20b' },
   { module: 'general', provider: 'gemini', apiKey: process.env.DEFAULT_GEMINI_API_KEY, model: 'gemini-2.5-flash' },
 ];
 
@@ -36,7 +37,7 @@ const SEED_PROJECT_KEYS = [
 
 const DEFAULT_SETTINGS = {
   defaultProvider: 'groq',
-  defaultModel: 'qwen/qwen3.6-27b',
+  defaultModel: 'openai/gpt-oss-20b',
   temperature: 0.7,
   maxTokens: 4096,
   maxApiKeysPerUser: 3,
@@ -77,10 +78,8 @@ async function seedKeys() {
     const exists = await AiProviderKey.findOne({ module: k.module, provider: k.provider });
     if (!exists) {
       await AiProviderKey.create({
-        module: k.module,
-        provider: k.provider,
-        encryptedKey: AiProviderKey.encryptKey(k.apiKey),
-        model: k.model,
+        module: k.module, provider: k.provider,
+        encryptedKey: AiProviderKey.encryptKey(k.apiKey), model: k.model,
       });
       count++;
     }
@@ -95,11 +94,8 @@ async function seedProjectKeys() {
     const exists = await ProjectKey.findOne({ keyHash: hashApiKey(k.key) });
     if (!exists) {
       await ProjectKey.create({
-        userId: null,
-        project: k.project,
-        name: k.name,
-        keyPrefix: k.key.slice(0, 12) + '...',
-        keyHash: hashApiKey(k.key),
+        userId: null, project: k.project, name: k.name,
+        keyPrefix: k.key.slice(0, 12) + '...', keyHash: hashApiKey(k.key),
       });
       count++;
     }
@@ -125,8 +121,7 @@ async function viewKeys() {
   console.log('│  Module      Provider    Model                        Active     │');
   console.log('├──────────────────────────────────────────────────────────────────┤');
   for (const k of keys) {
-    const active = k.isActive ? '✓' : '✗';
-    console.log(`│  ${k.module.padEnd(11)} ${k.provider.padEnd(10)} ${(k.model || 'N/A').padEnd(27)} ${active.padEnd(10)}│`);
+    console.log(`│  ${k.module.padEnd(11)} ${k.provider.padEnd(10)} ${(k.model || 'N/A').padEnd(27)} ${k.isActive ? '✓' : '✗'.padEnd(10)}│`);
   }
   console.log('└──────────────────────────────────────────────────────────────────┘\n');
 }
@@ -138,8 +133,7 @@ async function viewProjectKeys() {
   console.log('│  Project     Name                 Prefix            Active            │');
   console.log('├──────────────────────────────────────────────────────────────────────┤');
   for (const k of keys) {
-    const active = k.isActive ? '✓' : '✗';
-    console.log(`│  ${k.project.padEnd(11)} ${(k.name || 'N/A').padEnd(19)} ${k.keyPrefix.padEnd(17)} ${active.padEnd(17)}│`);
+    console.log(`│  ${k.project.padEnd(11)} ${(k.name || 'N/A').padEnd(19)} ${k.keyPrefix.padEnd(17)} ${k.isActive ? '✓' : '✗'.padEnd(17)}│`);
   }
   console.log('└──────────────────────────────────────────────────────────────────────┘\n');
 }
@@ -161,11 +155,9 @@ async function viewSettings() {
 
 async function main() {
   await connect();
-
   while (true) {
     showMenu();
     const choice = await ask('\nSelect option: ');
-
     switch (choice) {
       case '1': await seedAll(); break;
       case '2': await seedKeys(); break;
