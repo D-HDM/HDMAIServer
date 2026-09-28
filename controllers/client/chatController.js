@@ -1,4 +1,5 @@
 const axios = require('axios');
+const fs = require('fs');
 const config = require('../../config');
 const usageService = require('../../services/usageService');
 const Conversation = require('../../models/Conversation');
@@ -32,17 +33,31 @@ const chat = async (req, res, next) => {
     const history = await Message.find({ conversationId: conversation._id }).sort('createdAt').limit(20);
     const messages = history.map(m => ({ role: m.role, content: m.content }));
 
+    // ---- File handling: works with diskStorage AND memoryStorage ----
     let fileContext = '';
     if (files.length > 0) {
-      const fs = require('fs');
       for (const file of files) {
         try {
-          const content = fs.readFileSync(file.path, 'utf-8').slice(0, 5000);
+          // Read from buffer if present (memoryStorage), else from disk.
+          let raw;
+          if (file.buffer) {
+            raw = file.buffer.toString('utf-8');
+          } else if (file.path) {
+            raw = fs.readFileSync(file.path, 'utf-8');
+            // Clean up the temp file
+            try { fs.unlinkSync(file.path); } catch {}
+          } else {
+            continue;
+          }
+
+          const content = raw.slice(0, 5000);
           fileContext += `\n[File: ${file.originalname}]\n${content}\n`;
-          fs.unlinkSync(file.path);
-        } catch {}
+        } catch (err) {
+          console.warn(`[chat] Failed to read file ${file.originalname}: ${err.message}`);
+        }
       }
     }
+    // ------------------------------------------------------------------
 
     let systemPrompt = 'You are HDM AI, a helpful assistant.';
     if (fileContext) systemPrompt += `\n\nThe user has uploaded files:\n${fileContext}`;
