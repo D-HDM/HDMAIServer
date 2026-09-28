@@ -1,13 +1,8 @@
-// ====================================================================================================
-// HDM AI Server — Key Resolver
-// Looks up AI provider keys from DB, caches in memory
-// ====================================================================================================
-
 const AiProviderKey = require('../models/AiProviderKey');
 
 let cache = {};
 let lastFetch = 0;
-const CACHE_TTL = 60 * 1000; // 1 minute
+const CACHE_TTL = 60 * 1000;
 
 const keyResolver = {
   async refresh() {

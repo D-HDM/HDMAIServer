@@ -35,25 +35,24 @@ const usage = async (req, res, next) => {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    const modules = ['general', 'smartpos', 'spark', 'vibe', 'vault', 'erp', 'widget', 'rvnp', 'learn'];
+    const buckets = ['chat', 'learn', 'completion'];
     const services = {};
     const keyTotals = { key1: 0, key2: 0, key3: 0, key4: 0 };
 
-    for (const m of modules) {
-      const todayStats = await usageService.getStats({ module: m, startDate: today });
-      const monthStats = await usageService.getStats({ module: m, startDate: monthStart });
+    for (const b of buckets) {
+      const todayStats = await usageService.getStats({ module: b, startDate: today });
+      const monthStats = await usageService.getStats({ module: b, startDate: monthStart });
 
       let keyLabel;
-      if (m === 'general') keyLabel = 'Key 1';
-      else if (m === 'erp') keyLabel = 'Key 2';
-      else if (m === 'smartpos') keyLabel = 'Key 3';
-      else keyLabel = 'Key 4';
+      if (b === 'chat') keyLabel = 'Key 1';
+      else if (b === 'learn') keyLabel = 'Key 2';
+      else keyLabel = 'Key 3';
 
       const keyMap = { 'Key 1': 'key1', 'Key 2': 'key2', 'Key 3': 'key3', 'Key 4': 'key4' };
       keyTotals[keyMap[keyLabel]] += todayStats.totalRequests;
 
-      services[m] = {
-        name: m.charAt(0).toUpperCase() + m.slice(1),
+      services[b] = {
+        name: b.charAt(0).toUpperCase() + b.slice(1),
         requests_today: todayStats.totalRequests,
         requests_month: monthStats.totalRequests,
         tokens_today: todayStats.totalTokens,
@@ -76,21 +75,21 @@ const usage = async (req, res, next) => {
       data: {
         services,
         keys: {
-          key_1: { label: 'Key 1', services: 'General AI', requests_today: keyTotals.key1, limit_per_day: 1440, usage_percent: keyTotals.key1 ? Math.round((keyTotals.key1 / 1440) * 1000) / 10 : 0 },
-          key_2: { label: 'Key 2', services: 'ERP', requests_today: keyTotals.key2, limit_per_day: 1440, usage_percent: keyTotals.key2 ? Math.round((keyTotals.key2 / 1440) * 1000) / 10 : 0 },
-          key_3: { label: 'Key 3', services: 'SmartPOS', requests_today: keyTotals.key3, limit_per_day: 1440, usage_percent: keyTotals.key3 ? Math.round((keyTotals.key3 / 1440) * 1000) / 10 : 0 },
-          key_4: { label: 'Key 4', services: 'Spark, Vibe, Vault, Widget, RVNP, Learn', requests_today: keyTotals.key4, limit_per_day: 1440, usage_percent: keyTotals.key4 ? Math.round((keyTotals.key4 / 1440) * 1000) / 10 : 0 },
+          key_1: { label: 'Key 1', services: 'Chat, Execute, Analyze, Image', requests_today: keyTotals.key1, limit_per_day: 1440, usage_percent: keyTotals.key1 ? Math.round((keyTotals.key1 / 1440) * 1000) / 10 : 0 },
+          key_2: { label: 'Key 2', services: 'Learn', requests_today: keyTotals.key2, limit_per_day: 1440, usage_percent: keyTotals.key2 ? Math.round((keyTotals.key2 / 1440) * 1000) / 10 : 0 },
+          key_3: { label: 'Key 3', services: 'Completion (primary)', requests_today: keyTotals.key3, limit_per_day: 1440, usage_percent: keyTotals.key3 ? Math.round((keyTotals.key3 / 1440) * 1000) / 10 : 0 },
+          key_4: { label: 'Key 4', services: 'Completion (backup)', requests_today: keyTotals.key4, limit_per_day: 1440, usage_percent: keyTotals.key4 ? Math.round((keyTotals.key4 / 1440) * 1000) / 10 : 0 },
         },
         providers: {
-          groq: { name: 'Groq (GPT-OSS 20B)', requests_today: groqToday.totalRequests, requests_month: groqMonth.totalRequests, tokens_today: groqToday.totalTokens, limit_requests_per_day: 5760, usage_percent_today: groqToday.totalRequests ? Math.round((groqToday.totalRequests / 5760) * 1000) / 10 : 0, status: 'active' },
-          gemini: { name: 'Gemini (Flash/Pro)', requests_today: geminiToday.totalRequests, requests_month: geminiMonth.totalRequests, limit_flash_per_day: 1500, status: 'active', usage_percent_today: geminiToday.totalRequests ? Math.round((geminiToday.totalRequests / 1500) * 1000) / 10 : 0 },
+          groq: { name: 'HDM Nova', requests_today: groqToday.totalRequests, requests_month: groqMonth.totalRequests, tokens_today: groqToday.totalTokens, limit_requests_per_day: 5760, usage_percent_today: groqToday.totalRequests ? Math.round((groqToday.totalRequests / 5760) * 1000) / 10 : 0, status: 'active' },
+          gemini: { name: 'HDM Nova (Alt)', requests_today: geminiToday.totalRequests, requests_month: geminiMonth.totalRequests, limit_flash_per_day: 1500, status: 'active', usage_percent_today: geminiToday.totalRequests ? Math.round((geminiToday.totalRequests / 1500) * 1000) / 10 : 0 },
           code_execution: { name: 'Local Python/JS/Bash', status: 'active', limit: 'unlimited' },
         },
         overall: {
           total_requests_today: totalToday,
           total_requests_month: totalMonth,
           total_tokens_today: totalTokens,
-          free_tier_savings: '~$800/month vs paid equivalents (4 free keys × $200 each)',
+          free_tier_savings: '~$800/month vs paid equivalents',
         },
       },
     });

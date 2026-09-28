@@ -24,15 +24,15 @@ function decrypt(text) {
 
 const aiProviderKeySchema = new mongoose.Schema(
   {
-  module: {
-  type: String,
-  required: true,
- enum: ['general', 'smartpos', 'spark', 'vibe', 'vault', 'erp', 'widget', 'rvnp', 'learn'],
-},
+    module: {
+      type: String,
+      required: true,
+      enum: ['chat', 'learn', 'completion'],
+    },
     provider: {
       type: String,
       required: true,
-      enum: ['groq', 'gemini'],
+      enum: ['groq', 'gemini', 'groq_backup'],
     },
     encryptedKey: {
       type: String,

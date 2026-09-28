@@ -7,12 +7,12 @@ const usageLogSchema = new mongoose.Schema(
       ref: 'User',
       index: true,
     },
-module: {
-  type: String,
-  required: true,
-  enum: ['general', 'smartpos', 'spark', 'vibe', 'vault', 'erp', 'widget', 'rvnp', 'learn'],
-  index: true,
-},
+    module: {
+      type: String,
+      required: true,
+      enum: ['chat', 'learn', 'completion'],
+      index: true,
+    },
     provider: {
       type: String,
       default: 'groq',

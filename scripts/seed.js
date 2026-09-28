@@ -11,28 +11,17 @@ const { hashApiKey } = require('../utils/token');
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 const ask = (q) => new Promise(r => rl.question(q, r));
 
-const SEED_KEYS = [
-  { module: 'general', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY, model: 'openai/gpt-oss-20b' },
-  { module: 'erp', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_ERP, model: 'openai/gpt-oss-20b' },
-  { module: 'smartpos', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SMARTPOS, model: 'openai/gpt-oss-20b' },
-  { module: 'spark', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'openai/gpt-oss-20b' },
-  { module: 'vibe', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'openai/gpt-oss-20b' },
-  { module: 'vault', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'openai/gpt-oss-20b' },
-  { module: 'widget', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'openai/gpt-oss-20b' },
-  { module: 'rvnp', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'openai/gpt-oss-20b' },
-  { module: 'learn', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_SPARK, model: 'openai/gpt-oss-20b' },
-  { module: 'general', provider: 'gemini', apiKey: process.env.DEFAULT_GEMINI_API_KEY, model: 'gemini-2.5-flash' },
+const SEED_AI_KEYS = [
+  { module: 'chat', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY, model: 'openai/gpt-oss-20b' },
+  { module: 'chat', provider: 'gemini', apiKey: process.env.DEFAULT_GEMINI_API_KEY, model: 'gemini-2.5-flash' },
+  { module: 'learn', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_LEARN, model: 'openai/gpt-oss-20b' },
+  { module: 'completion', provider: 'groq', apiKey: process.env.DEFAULT_GROQ_API_KEY_COMPLETION, model: 'openai/gpt-oss-20b' },
+  { module: 'completion', provider: 'groq_backup', apiKey: process.env.DEFAULT_GROQ_API_KEY_COMPLETION_BACKUP, model: 'openai/gpt-oss-20b' },
 ];
 
 const SEED_PROJECT_KEYS = [
-  { project: 'general', key: process.env.DEFAULT_HDM_GENERAL_KEY, name: 'Default General' },
-  { project: 'smartpos', key: process.env.DEFAULT_HDM_SMARTPOS_KEY, name: 'Default SmartPOS' },
-  { project: 'spark', key: process.env.DEFAULT_HDM_SPARK_KEY, name: 'Default Spark' },
-  { project: 'vibe', key: process.env.DEFAULT_HDM_VIBE_KEY, name: 'Default Vibe' },
-  { project: 'vault', key: process.env.DEFAULT_HDM_VAULT_KEY, name: 'Default Vault' },
-  { project: 'erp', key: process.env.DEFAULT_HDM_ERP_KEY, name: 'Default ERP' },
-  { project: 'widget', key: process.env.DEFAULT_HDM_WIDGET_KEY, name: 'Default Widget' },
-  { project: 'rvnp', key: process.env.DEFAULT_HDM_RVNP_KEY, name: 'Default RVNP' },
+  { project: 'chat', key: process.env.DEFAULT_HDM_CHAT_KEY, name: 'Default Chat' },
+  { project: 'completion', key: process.env.DEFAULT_HDM_COMPLETION_KEY, name: 'Default Completion' },
 ];
 
 const DEFAULT_SETTINGS = {
@@ -52,7 +41,7 @@ function showMenu() {
   console.log('═══════════════════════════════════');
   console.log('       HDM AI — Seed Script');
   console.log('═══════════════════════════════════');
-  console.log('  1. Seed All (keys + project keys + settings)');
+  console.log('  1. Seed All');
   console.log('  2. Seed AI Provider Keys');
   console.log('  3. Seed Project Keys');
   console.log('  4. Seed Default Settings');
@@ -64,16 +53,14 @@ function showMenu() {
 }
 
 async function seedAll() {
-  console.log('\nSeeding all...');
-  await seedKeys();
+  await seedAiKeys();
   await seedProjectKeys();
   await seedSettings();
-  console.log('Done.\n');
 }
 
-async function seedKeys() {
+async function seedAiKeys() {
   let count = 0;
-  for (const k of SEED_KEYS) {
+  for (const k of SEED_AI_KEYS) {
     if (!k.apiKey) continue;
     const exists = await AiProviderKey.findOne({ module: k.module, provider: k.provider });
     if (!exists) {
@@ -84,7 +71,7 @@ async function seedKeys() {
       count++;
     }
   }
-  console.log(`\n✓ AI keys seeded: ${count} new (${SEED_KEYS.length - count} already existed)\n`);
+  console.log(`AI keys seeded: ${count} new\n`);
 }
 
 async function seedProjectKeys() {
@@ -100,57 +87,36 @@ async function seedProjectKeys() {
       count++;
     }
   }
-  console.log(`\n✓ Project keys seeded: ${count} new (${SEED_PROJECT_KEYS.length - count} already existed)\n`);
+  console.log(`Project keys seeded: ${count} new\n`);
 }
 
 async function seedSettings() {
-  const collection = mongoose.connection.db.collection('settings');
-  const exists = await collection.findOne({ type: 'ai_config' });
+  const col = mongoose.connection.db.collection('settings');
+  const exists = await col.findOne({ type: 'ai_config' });
   if (!exists) {
-    await collection.insertOne({ type: 'ai_config', ...DEFAULT_SETTINGS, createdAt: new Date() });
-    console.log('\n✓ Default settings seeded.\n');
+    await col.insertOne({ type: 'ai_config', ...DEFAULT_SETTINGS, createdAt: new Date() });
+    console.log('Settings seeded\n');
   } else {
-    console.log('\n⚠ Settings already exist.\n');
+    console.log('Settings already exist\n');
   }
 }
 
-async function viewKeys() {
+async function viewAiKeys() {
   const keys = await AiProviderKey.find().sort('module provider');
-  if (keys.length === 0) return console.log('\nNo AI keys found.\n');
-  console.log('\n┌──────────────────────────────────────────────────────────────────┐');
-  console.log('│  Module      Provider    Model                        Active     │');
-  console.log('├──────────────────────────────────────────────────────────────────┤');
-  for (const k of keys) {
-    console.log(`│  ${k.module.padEnd(11)} ${k.provider.padEnd(10)} ${(k.model || 'N/A').padEnd(27)} ${k.isActive ? '✓' : '✗'.padEnd(10)}│`);
-  }
-  console.log('└──────────────────────────────────────────────────────────────────┘\n');
+  keys.forEach(k => console.log(`  ${k.module.padEnd(12)} ${k.provider.padEnd(14)} ${k.model}`));
+  console.log('');
 }
 
 async function viewProjectKeys() {
   const keys = await ProjectKey.find().sort('project');
-  if (keys.length === 0) return console.log('\nNo project keys found.\n');
-  console.log('\n┌──────────────────────────────────────────────────────────────────────┐');
-  console.log('│  Project     Name                 Prefix            Active            │');
-  console.log('├──────────────────────────────────────────────────────────────────────┤');
-  for (const k of keys) {
-    console.log(`│  ${k.project.padEnd(11)} ${(k.name || 'N/A').padEnd(19)} ${k.keyPrefix.padEnd(17)} ${k.isActive ? '✓' : '✗'.padEnd(17)}│`);
-  }
-  console.log('└──────────────────────────────────────────────────────────────────────┘\n');
+  keys.forEach(k => console.log(`  ${k.project.padEnd(12)} ${k.name.padEnd(20)} ${k.keyPrefix}`));
+  console.log('');
 }
 
 async function viewSettings() {
-  const collection = mongoose.connection.db.collection('settings');
-  const settings = await collection.findOne({ type: 'ai_config' });
-  if (!settings) return console.log('\nNo settings found.\n');
-  console.log('\n┌──────────────────────────────────────────────┐');
-  console.log('│  Default AI Settings                         │');
-  console.log('├──────────────────────────────────────────────┤');
-  console.log(`│  Provider:    ${settings.defaultProvider.padEnd(33)}│`);
-  console.log(`│  Model:       ${settings.defaultModel.padEnd(33)}│`);
-  console.log(`│  Temperature: ${String(settings.temperature).padEnd(33)}│`);
-  console.log(`│  Max Tokens:  ${String(settings.maxTokens).padEnd(33)}│`);
-  console.log(`│  Max API Keys: ${String(settings.maxApiKeysPerUser).padEnd(31)}│`);
-  console.log('└──────────────────────────────────────────────┘\n');
+  const col = mongoose.connection.db.collection('settings');
+  const s = await col.findOne({ type: 'ai_config' });
+  if (s) console.log(`  Provider: ${s.defaultProvider}\n  Model: ${s.defaultModel}\n  Max Tokens: ${s.maxTokens}\n`);
 }
 
 async function main() {
@@ -160,19 +126,18 @@ async function main() {
     const choice = await ask('\nSelect option: ');
     switch (choice) {
       case '1': await seedAll(); break;
-      case '2': await seedKeys(); break;
+      case '2': await seedAiKeys(); break;
       case '3': await seedProjectKeys(); break;
       case '4': await seedSettings(); break;
-      case '5': await viewKeys(); break;
+      case '5': await viewAiKeys(); break;
       case '6': await viewProjectKeys(); break;
       case '7': await viewSettings(); break;
       case '0':
-        console.log('\nExiting...');
         await mongoose.disconnect();
         rl.close();
         process.exit(0);
       default:
-        console.log('\nInvalid option. Try again.\n');
+        console.log('Invalid option\n');
     }
   }
 }

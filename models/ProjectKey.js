@@ -9,11 +9,11 @@ const projectKeySchema = new mongoose.Schema(
       default: null,
       index: true,
     },
- project: {
-  type: String,
-  required: true,
-  enum: ['general', 'smartpos', 'spark', 'vibe', 'vault', 'erp', 'widget', 'rvnp'],
-},
+    project: {
+      type: String,
+      required: true,
+      enum: ['chat', 'completion'],
+    },
     name: {
       type: String,
       trim: true,

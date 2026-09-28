@@ -11,7 +11,7 @@ const upload = multer({ dest: uploadDir });
 const ctrl = require('../../controllers/client/chatController');
 const auth = require('../../middleware/auth');
 
-router.post('/:module', auth, upload.array('files', 5), ctrl.chat);
-router.post('/:module/stream', auth, upload.array('files', 5), ctrl.streamChat);
+router.post('/', auth, upload.array('files', 5), ctrl.chat);
+router.post('/stream', auth, upload.array('files', 5), ctrl.streamChat);
 
 module.exports = router;
