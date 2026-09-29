@@ -4,34 +4,35 @@ const emailService = require('../../services/emailService');
 const User = require('../../models/User');
 
 const PREFIXES = {
-  chat: 'hdm_cht_',
-  completion: 'hdm_cmp_',
+  completion: 'hdm_',
 };
 
 const createKey = async (req, res, next) => {
   try {
     const { project, name } = req.body;
-    const finalProject = project || 'chat';
-
-    if (finalProject !== 'chat') {
-      return res.status(403).json({ success: false, error: 'Only Chat keys are available. Completion keys are issued by admin.' });
-    }
+    const finalProject = project || 'completion';
 
     const prefix = PREFIXES[finalProject];
     if (!prefix) return res.status(400).json({ success: false, error: 'Invalid project.' });
 
     const fullKey = generateApiKey(prefix);
     const key = await ProjectKey.create({
-      userId: req.user.sub, project: finalProject,
+      userId: req.user.sub,
+      project: finalProject,
       name: name || 'Default',
-      keyPrefix: fullKey.slice(0, 12) + '...', keyHash: hashApiKey(fullKey),
+      keyPrefix: fullKey.slice(0, 12) + '...',
+      keyHash: hashApiKey(fullKey),
     });
 
     await User.findByIdAndUpdate(req.user.sub, { $inc: { apiKeysCount: 1 } });
     const user = await User.findById(req.user.sub);
     await emailService.sendNewApiKeyEmail(user.email, user.username, finalProject, key.keyPrefix);
 
-    res.status(201).json({ success: true, data: { id: key._id, project: finalProject, keyPrefix: key.keyPrefix, name: key.name, fullKey }, message: 'Key created. Save it now — shown only once.' });
+    res.status(201).json({
+      success: true,
+      data: { id: key._id, project: finalProject, keyPrefix: key.keyPrefix, name: key.name, fullKey },
+      message: 'Key created. Save it now — shown only once.',
+    });
   } catch (err) { next(err); }
 };
 
