@@ -2,15 +2,35 @@ const axios = require('axios');
 const config = require('../../config');
 const usageService = require('../../services/usageService');
 const ProjectKey = require('../../models/ProjectKey');
+const { searchWeb, needsSearch, buildSearchContext } = require('../../services/tavilyService');
 
 const completion = async (req, res, next) => {
   try {
-    const { message, messages, system_prompt, temperature, max_tokens, data } = req.body;
+    const { message, messages, system_prompt, temperature, max_tokens, data, search_enabled } = req.body;
     const projectKey = req.projectKey;
+
+    const shouldSearch = message && (search_enabled === true || needsSearch(message));
+    let finalSystemPrompt = system_prompt || 'You are a helpful assistant.';
+
+    if (shouldSearch) {
+      const searchData = await searchWeb(message);
+      const searchContext = buildSearchContext(searchData);
+      if (searchContext) {
+        finalSystemPrompt = `${finalSystemPrompt}\n\n${searchContext}`;
+      }
+    }
 
     const response = await axios.post(
       `${config.pythonAiUrl}/v1/completion`,
-      { user_id: projectKey.userId?.toString() || 'external', message, messages, system_prompt, temperature, max_tokens, data },
+      {
+        user_id: projectKey.userId?.toString() || 'external',
+        message,
+        messages,
+        system_prompt: finalSystemPrompt,
+        temperature,
+        max_tokens,
+        data,
+      },
       { timeout: 60000 }
     );
 
@@ -42,6 +62,7 @@ const completion = async (req, res, next) => {
         model: body.model || 'HDM Nova',
         tokens_used: tokens,
         provider: body.provider || 'HDM AI',
+        searched: shouldSearch,
       },
     });
   } catch (err) {

@@ -9,6 +9,7 @@ const { connectRedis, getRedis } = require('./config/redis');
 const logger = require('./middleware/logger');
 const errorHandler = require('./middleware/errorHandler');
 const keyResolver = require('./services/keyResolver');
+const schedulers = require('./schedulers');
 
 const app = express();
 
@@ -134,6 +135,8 @@ async function start() {
   await keyResolver.refresh();
   console.log(`Key Resolver: Loaded\n`);
 
+  schedulers.start();
+
   const server = app.listen(PORT, () => {
     console.log(`Server running on ${config.baseUrl}`);
     console.log(`Client: ${config.clientUrl}`);
@@ -143,6 +146,7 @@ async function start() {
 
   const shutdown = async (signal) => {
     console.log(`\n${signal} received. Shutting down gracefully...`);
+    schedulers.stop();
     server.close(async () => {
       await mongoose.disconnect();
       const r = getRedis();
